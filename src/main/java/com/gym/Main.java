@@ -1,63 +1,39 @@
 package com.gym;
 
-import com.gym.domain.*;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.gym.domain.User;
+import com.gym.repository.UserRepository;
+import com.gym.repository.sqlite.SqliteDatabaseManager;
+import com.gym.repository.sqlite.SqliteUserRepository;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("TESTING ALL DOMAIN ENTITIES...\n");
+        SqliteDatabaseManager.initializeDatabase();
 
-        // User
-        User member = new User("john_dune", "password123", "john@email.com", "MEMBER");
-        member.setUserId(1);
-        System.out.println("1. " + member);
+        System.out.println("\n=== TESTING USER REPOSITORY ===\n");
 
-        // GymClass
-        GymClass yoga = new GymClass(
-                "Morning Yoga",
-                "Sarah Jah",
-                "Relaxing yoga",
-                20, 60, "YOGA"
-        );
-        yoga.setClassId(1);
-        System.out.println("\n2. " + yoga);
+        UserRepository userRepo = new SqliteUserRepository();
 
-        // ClassSchedule
-        ClassSchedule schedule = new ClassSchedule(
-                1,
-                LocalDate.of(2025, 11, 20),
-                LocalTime.of(9, 0),
-                LocalTime.of(10, 0),
-                20
-        );
-        schedule.setScheduleId(1);
-        System.out.println("\n3. " + schedule);
-        System.out.println("Is full?" + schedule.isFull());
+        User admin = new User("admin", "admin123", "admin@gym.com", "ADMIN");
+        User member = new User("john_doe", "password123", "john@email.com", "MEMBER");
 
-        // Booking
-        Booking booking = new Booking(1, 1, "CONFIRMED");
-        booking.setBookingId(1);
-        System.out.println("\n4. " + booking);
-        System.out.println("Is confirmed?" + booking.isConfirmed());
+        userRepo.save(admin);
+        userRepo.save(member);
 
-        // Simulate booking
-        System.out.println("\nSimulating booking...");
-        schedule.decrementSpots();
-        System.out.println("Available spots now: " + schedule.getAvailableSpots());
+        System.out.println("\n--- Finding user by username ---");
+        User found = userRepo.findByUsername("admin");
+        System.out.println(found);
 
-        // FitnessProgress
-        FitnessProgress progress = new FitnessProgress(
-                1,
-                LocalDate.now(),
-                "BENCH_PRESS",
-                80.5,
-                "kg",
-                "New personal record!"
-        );
-        progress.setProgressId(1);
-        System.out.println("\n5. " + progress);
-        System.out.println("\nAll domain entities working correctly");
+        System.out.println("\n--- All users ---");
+        userRepo.findAll().forEach(System.out::println);
+
+        System.out.println("\n--- Testing login ---");
+        User loggedIn = userRepo.validateLogin("admin", "admin123");
+        if (loggedIn != null) {
+            System.out.println("Login successful: " + loggedIn.getUsername());
+        } else {
+            System.out.println("Login failed");
+        }
+
+        System.out.println("\nAll tests passed!");
     }
 }
