@@ -5,62 +5,53 @@ import java.time.LocalDate;
 public class FitnessProgress {
     private int progressId;
     private int userId;
-    private LocalDate workoutDate;
-    private String exerciseType; // "BENCH_PRESS", "SQUAT", "DEADLIFT", "RUNNING"
-    private double metricValue; // weight lifted, distance, time
-    private String metricUnit; // "kg", "km", "minutes", "reps"
-    private String notes;
+    private String category; // "CARDIO", "STRENGTH", "FLEXIBILITY", "ENDURANCE", "LEGS", "ARMS", "CORE"
+    private int totalPoints;
+    private LocalDate lastUpdated;
 
-    // Constructor for new progress entry
-    public FitnessProgress(int userId, LocalDate workoutDate, String exerciseType,
-                           double metricValue, String metricUnit, String notes) {
+    public FitnessProgress(int userId, String category, int totalPoints) {
         this.userId = userId;
-        this.workoutDate = workoutDate;
-        this.exerciseType = exerciseType;
-        this.metricValue = metricValue;
-        this.metricUnit = metricUnit;
-        this.notes = notes;
+        this.category = category;
+        this.totalPoints = totalPoints;
+        this.lastUpdated = LocalDate.now();
     }
 
     // Constructor for existing progress from database
-    public FitnessProgress(int progressId, int userId, LocalDate workoutDate,
-                           String exerciseType, double metricValue, String metricUnit, String notes) {
+    public FitnessProgress(int progressId, int userId, String category,
+                           int totalPoints, LocalDate lastUpdated) {
         this.progressId = progressId;
         this.userId = userId;
-        this.workoutDate = workoutDate;
-        this.exerciseType = exerciseType;
-        this.metricValue = metricValue;
-        this.metricUnit = metricUnit;
-        this.notes = notes;
+        this.category = category;
+        this.totalPoints = totalPoints;
+        this.lastUpdated = lastUpdated;
     }
 
     // Getters
     public int getProgressId() { return progressId; }
     public int getUserId() { return userId; }
-    public LocalDate getWorkoutDate() { return workoutDate; }
-    public String getExerciseType() { return exerciseType; }
-    public double getMetricValue() { return metricValue; }
-    public String getMetricUnit() { return metricUnit; }
-    public String getNotes() { return notes; }
+    public String getCategory() { return category; }
+    public int getTotalPoints() { return totalPoints; }
+    public LocalDate getLastUpdated() { return lastUpdated; }
 
     // Setters
     public void setProgressId(int progressId) { this.progressId = progressId; }
-    public void setMetricValue(double metricValue) { this.metricValue = metricValue; }
-    public void setNotes(String notes) { this.notes = notes; }
+    public void setTotalPoints(int totalPoints) { this.totalPoints = totalPoints; }
+    public void setLastUpdated(LocalDate lastUpdated) { this.lastUpdated = lastUpdated; }
 
-    public String getFormattedMetric() {
-        return String.format("%.2f %s", metricValue, metricUnit);
+    public void addPoints(int points) {
+        this.totalPoints += points;
+        this.lastUpdated = LocalDate.now();
     }
-
+    public int getLevel() {
+        // Every 100 points = 1 level
+        return totalPoints / 100;
+    }
     @Override
     public String toString() {
         return "FitnessProgress{" +
-                "progressId=" + progressId +
-                ", userId=" + userId +
-                ", workoutDate=" + workoutDate +
-                ", exerciseType='" + exerciseType + '\'' +
-                ", metric=" + getFormattedMetric() +
-                ", notes='" + notes + '\'' +
+                "category='" + category + '\'' +
+                ", points=" + totalPoints +
+                ", level=" + getLevel() +
                 '}';
     }
 }

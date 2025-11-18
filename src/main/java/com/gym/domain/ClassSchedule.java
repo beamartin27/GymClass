@@ -19,6 +19,16 @@ public class ClassSchedule {
         this.endTime = endTime;
         this.availableSpots = availableSpots;
     }
+    //From Database
+    public ClassSchedule(int scheduleId, int classId, LocalDate scheduledDate,
+                         LocalTime startTime, LocalTime endTime, int availableSpots) {
+        this.scheduleId = scheduleId;
+        this.classId = classId;
+        this.scheduledDate = scheduledDate;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.availableSpots = availableSpots;
+    }
 
     // Getters
     public int getScheduleId() { return scheduleId; }

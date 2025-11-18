@@ -5,6 +5,7 @@ public class GymClass {
     private String className;
     private String instructorName;
     private String description;
+    private int trainerId;
     private int capacity;
     private int durationMinutes;
     private String classType; // "YOGA", "CARDIO", "STRENGTH"

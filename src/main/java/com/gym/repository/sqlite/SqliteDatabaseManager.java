@@ -87,17 +87,16 @@ public class SqliteDatabaseManager {
 
     private static void createFitnessProgressTable() {
         String sql = """
-            CREATE TABLE IF NOT EXISTS fitness_progress (
-                progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                workout_date TEXT NOT NULL,
-                exercise_type TEXT NOT NULL,
-                metric_value REAL NOT NULL,
-                metric_unit TEXT NOT NULL,
-                notes TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(user_id)
-            )
-            """;
+        CREATE TABLE IF NOT EXISTS fitness_progress (
+            progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            total_points INTEGER DEFAULT 0,
+            last_updated TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(user_id),
+            UNIQUE(user_id, category)
+        )
+        """;
         executeUpdate(sql, "fitness_progress");
     }
 

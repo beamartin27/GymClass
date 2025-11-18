@@ -41,6 +41,9 @@ public class User {
     public boolean isAdmin() {
         return "ADMIN".equalsIgnoreCase(role);
     }
+    public boolean isTrainer() {
+        return "TRAINER".equalsIgnoreCase(role);
+    }
     public boolean isMember() {
         return "MEMBER".equalsIgnoreCase(role);
     }
