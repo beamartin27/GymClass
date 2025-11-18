@@ -1,114 +1,113 @@
 package com.gym;
 
 import com.gym.domain.*;
-import com.gym.repository.*;
-import com.gym.repository.sqlite.*;
+import com.gym.repository.sqlite.SqliteDatabaseManager;
+import com.gym.service.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
         SqliteDatabaseManager.initializeDatabase();
 
-        System.out.println("\n=== TESTING MULTI-CATEGORY PROGRESS SYSTEM ===\n");
+        System.out.println("\n=== COMPLETE SERVICE LAYER TEST ===\n");
 
-        UserRepository userRepo = new SqliteUserRepository();
-        ClassRepository classRepo = new SqliteClassRepository();
-        ProgressRepository progressRepo = new SqliteProgressRepository();
+        AuthService authService = new AuthServiceImpl();
+        ClassService classService = new ClassServiceImpl();
+        BookingService bookingService = new BookingServiceImpl();
+        ProgressService progressService = new ProgressServiceImpl();
 
-        // Create user
-        User member = new User("sarah_fit", "password123", "sarah@gym.com", "MEMBER");
-        userRepo.save(member);
+        // 1. Register and login user
+        System.out.println("--- Step 1: User Registration ---");
+        authService.register("sarah_athlete", "password123", "sarah@gym.com", "MEMBER");
+        User sarah = authService.login("sarah_athlete", "password123");
 
-        // Create classes with arbitrary names
-        GymClass bootcamp = new GymClass("Bootcamp Blast", "Mike Thunder",
-                "High intensity full body workout", 15, 45, "HIIT");
-        classRepo.saveClass(bootcamp);
+        // 2. Initialize user progress
+        System.out.println("\n--- Step 2: Initialize Progress ---");
+        progressService.initializeUserProgress(sarah.getUserId());
+
+        // 3. Create classes
+        System.out.println("\n--- Step 3: Create Classes ---");
+        GymClass hiit = new GymClass("Bootcamp Blast", "Mike Thunder",
+                "High intensity workout", 10, 45, "HIIT");
+        classService.createClass(hiit);
 
         GymClass yoga = new GymClass("Zen Flow Yoga", "Luna Peace",
-                "Relaxing yoga for mind and body", 20, 60, "YOGA");
-        classRepo.saveClass(yoga);
+                "Relaxing yoga session", 15, 60, "YOGA");
+        classService.createClass(yoga);
 
         GymClass strength = new GymClass("Iron Warrior", "Max Steel",
-                "Heavy lifting and muscle building", 12, 90, "STRENGTH");
-        classRepo.saveClass(strength);
+                "Heavy lifting session", 8, 90, "STRENGTH");
+        classService.createClass(strength);
 
-        System.out.println("--- Created Classes ---");
-        System.out.println(bootcamp);
-        System.out.println(yoga);
-        System.out.println(strength);
+        // 4. Create schedules
+        System.out.println("\n--- Step 4: Schedule Classes ---");
+        ClassSchedule hiitSchedule = new ClassSchedule(
+                hiit.getClassId(),
+                LocalDate.now().plusDays(1),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 45),
+                10
+        );
+        classService.createSchedule(hiitSchedule);
 
-        // Initialize progress for all categories
-        String[] categories = {"CARDIO", "STRENGTH", "FLEXIBILITY", "ENDURANCE", "LEGS", "ARMS", "CORE"};
-        for (String category : categories) {
-            FitnessProgress progress = new FitnessProgress(member.getUserId(), category, 0);
-            progressRepo.save(progress);
-        }
+        ClassSchedule yogaSchedule = new ClassSchedule(
+                yoga.getClassId(),
+                LocalDate.now().plusDays(1),
+                LocalTime.of(18, 0),
+                LocalTime.of(19, 0),
+                15
+        );
+        classService.createSchedule(yogaSchedule);
 
-        // Define point mappings for each class type
-        Map<String, Map<String, Integer>> pointSystem = new HashMap<>();
+        ClassSchedule strengthSchedule = new ClassSchedule(
+                strength.getClassId(),
+                LocalDate.now().plusDays(2),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 30),
+                8
+        );
+        classService.createSchedule(strengthSchedule);
 
-        Map<String, Integer> hiitPoints = new HashMap<>();
-        hiitPoints.put("CARDIO", 70);
-        hiitPoints.put("STRENGTH", 60);
-        hiitPoints.put("ENDURANCE", 50);
-        hiitPoints.put("LEGS", 40);
-        pointSystem.put("HIIT", hiitPoints);
+        // 5. Show initial progress
+        System.out.println("\n--- Initial Progress (all zeros) ---");
+        progressService.getAllUserProgress(sarah.getUserId())
+                .forEach(p -> System.out.println(p));
 
-        Map<String, Integer> yogaPoints = new HashMap<>();
-        yogaPoints.put("FLEXIBILITY", 50);
-        yogaPoints.put("CORE", 30);
-        yogaPoints.put("STRENGTH", 20);
-        pointSystem.put("YOGA", yogaPoints);
+        // 6. Book and attend HIIT class
+        System.out.println("\n--- Step 5: Book HIIT Class ---");
+        bookingService.bookClass(sarah.getUserId(), hiitSchedule.getScheduleId());
 
-        Map<String, Integer> strengthPoints = new HashMap<>();
-        strengthPoints.put("STRENGTH", 80);
-        strengthPoints.put("ARMS", 60);
-        strengthPoints.put("LEGS", 60);
-        strengthPoints.put("CORE", 40);
-        pointSystem.put("STRENGTH", strengthPoints);
+        System.out.println("\n--- Simulate Attending HIIT Class ---");
+        progressService.awardPointsForClass(sarah.getUserId(), hiit.getClassType());
 
-        // Simulate attending "Bootcamp Blast" (HIIT class)
-        System.out.println("\n--- Attending: " + bootcamp.getClassName() + " ---");
-        Map<String, Integer> earnedPoints = pointSystem.get(bootcamp.getClassType());
-        for (Map.Entry<String, Integer> entry : earnedPoints.entrySet()) {
-            FitnessProgress progress = progressRepo.findByUserIdAndCategory(member.getUserId(), entry.getKey());
-            progress.addPoints(entry.getValue());
-            progressRepo.update(progress);
-            System.out.println("  +" + entry.getValue() + " " + entry.getKey() + " points");
-        }
+        // 7. Book and attend Yoga class
+        System.out.println("\n--- Step 6: Book Yoga Class ---");
+        bookingService.bookClass(sarah.getUserId(), yogaSchedule.getScheduleId());
 
-        // Simulate attending "Zen Flow Yoga"
-        System.out.println("\n--- Attending: " + yoga.getClassName() + " ---");
-        earnedPoints = pointSystem.get(yoga.getClassType());
-        for (Map.Entry<String, Integer> entry : earnedPoints.entrySet()) {
-            FitnessProgress progress = progressRepo.findByUserIdAndCategory(member.getUserId(), entry.getKey());
-            progress.addPoints(entry.getValue());
-            progressRepo.update(progress);
-            System.out.println("  +" + entry.getValue() + " " + entry.getKey() + " points");
-        }
+        System.out.println("\n--- Simulate Attending Yoga Class ---");
+        progressService.awardPointsForClass(sarah.getUserId(), yoga.getClassType());
 
-        // Simulate attending "Iron Warrior"
-        System.out.println("\n--- Attending: " + strength.getClassName() + " ---");
-        earnedPoints = pointSystem.get(strength.getClassType());
-        for (Map.Entry<String, Integer> entry : earnedPoints.entrySet()) {
-            FitnessProgress progress = progressRepo.findByUserIdAndCategory(member.getUserId(), entry.getKey());
-            progress.addPoints(entry.getValue());
-            progressRepo.update(progress);
-            System.out.println("  +" + entry.getValue() + " " + entry.getKey() + " points");
-        }
+        // 8. Book and attend Strength class
+        System.out.println("\n--- Step 7: Book Strength Class ---");
+        bookingService.bookClass(sarah.getUserId(), strengthSchedule.getScheduleId());
 
-        // Show final progress
-        System.out.println("\n--- " + member.getUsername() + "'s Fitness Progress ---");
-        progressRepo.findByUserId(member.getUserId()).forEach(progress -> {
-            if (progress.getTotalPoints() > 0) {
-                System.out.println(progress);
-            }
-        });
+        System.out.println("\n--- Simulate Attending Strength Class ---");
+        progressService.awardPointsForClass(sarah.getUserId(), strength.getClassType());
 
-        System.out.println("\n✅ Multi-category progress system working!");
+        // 9. Show final progress
+        System.out.println("\n--- Final Progress Summary ---");
+        progressService.getAllUserProgress(sarah.getUserId())
+                .stream()
+                .filter(p -> p.getTotalPoints() > 0)
+                .forEach(p -> System.out.println(p + " | Level: " + p.getLevel()));
+
+        // 10. Show user's bookings
+        System.out.println("\n--- User's Bookings ---");
+        bookingService.getUserBookings(sarah.getUserId())
+                .forEach(System.out::println);
+
+        System.out.println("\n=== ALL SERVICE LAYER TESTS PASSED ===");
     }
 }

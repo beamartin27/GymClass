@@ -20,8 +20,7 @@ public class ClassSchedule {
         this.availableSpots = availableSpots;
     }
     //From Database
-    public ClassSchedule(int scheduleId, int classId, LocalDate scheduledDate,
-                         LocalTime startTime, LocalTime endTime, int availableSpots) {
+    public ClassSchedule(int scheduleId, int classId, LocalDate scheduledDate, LocalTime startTime, LocalTime endTime, int availableSpots) {
         this.scheduleId = scheduleId;
         this.classId = classId;
         this.scheduledDate = scheduledDate;
@@ -44,6 +43,9 @@ public class ClassSchedule {
 
     public boolean isFull() {
         return availableSpots <= 0;
+    }
+    public boolean hasAvailableSpots() {
+        return availableSpots > 0;
     }
 
     public void decrementSpots() {
