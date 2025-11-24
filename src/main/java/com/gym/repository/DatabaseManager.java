@@ -1,5 +1,4 @@
 package com.gym.repository;
 
-interface DatabaseManager {
-
+public interface DatabaseManager {
 }
