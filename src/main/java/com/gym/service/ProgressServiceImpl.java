@@ -2,7 +2,6 @@ package com.gym.service;
 
 import com.gym.domain.FitnessProgress;
 import com.gym.repository.ProgressRepository;
-import com.gym.repository.sqlite.SqliteProgressRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +11,8 @@ public class ProgressServiceImpl implements ProgressService {
     private final ProgressRepository progressRepository;
     private final Map<String, Map<String, Integer>> pointSystem;
 
-    public ProgressServiceImpl() {
-        this.progressRepository = new SqliteProgressRepository();
+    public ProgressServiceImpl(ProgressRepository progressRepository) {
+        this.progressRepository = progressRepository;
         this.pointSystem = initializePointSystem();
     }
 

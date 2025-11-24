@@ -3,7 +3,6 @@ package com.gym.service;
 import com.gym.domain.GymClass;
 import com.gym.domain.ClassSchedule;
 import com.gym.repository.ClassRepository;
-import com.gym.repository.sqlite.SqliteClassRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,8 +11,8 @@ import java.util.stream.Collectors;
 public class ClassServiceImpl implements ClassService {
     private final ClassRepository classRepository;
 
-    public ClassServiceImpl() {
-        this.classRepository = new SqliteClassRepository();
+    public ClassServiceImpl(ClassRepository classRepository) {
+        this.classRepository = classRepository;
     }
 
     @Override

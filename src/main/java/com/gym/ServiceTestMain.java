@@ -7,16 +7,16 @@ import com.gym.service.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class Main {
+public class ServiceTestMain {
     public static void main(String[] args) {
         SqliteDatabaseManager.initializeDatabase();
 
         System.out.println("\n=== COMPLETE SERVICE LAYER TEST ===\n");
 
-        AuthService authService = new AuthServiceImpl();
-        ClassService classService = new ClassServiceImpl();
-        BookingService bookingService = new BookingServiceImpl();
-        ProgressService progressService = new ProgressServiceImpl();
+        AuthService authService = AppConfig.getAuthService();
+        ClassService classService = AppConfig.getClassService();
+        BookingService bookingService = AppConfig.getBookingService();
+        ProgressService progressService = AppConfig.getProgressService();
 
         // 1. Register and login user
         System.out.println("--- Step 1: User Registration ---");

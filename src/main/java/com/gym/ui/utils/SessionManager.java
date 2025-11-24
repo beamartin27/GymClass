@@ -1,5 +1,19 @@
 package com.gym.ui.utils;
 
-public class SessionManager {
+import com.gym.domain.User;
 
+public class SessionManager {
+    private static User currentUser;
+
+    public static void setCurrentUser(User user) {
+        currentUser = user;
+    }
+
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    public static void clear() {
+        currentUser = null;
+    }
 }

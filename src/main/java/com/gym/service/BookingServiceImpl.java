@@ -4,8 +4,6 @@ import com.gym.domain.Booking;
 import com.gym.domain.ClassSchedule;
 import com.gym.repository.BookingRepository;
 import com.gym.repository.ClassRepository;
-import com.gym.repository.sqlite.SqliteBookingRepository;
-import com.gym.repository.sqlite.SqliteClassRepository;
 
 import java.util.List;
 
@@ -13,9 +11,9 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ClassRepository classRepository;
 
-    public BookingServiceImpl() {
-        this.bookingRepository = new SqliteBookingRepository();
-        this.classRepository = new SqliteClassRepository();
+    public BookingServiceImpl(BookingRepository bookingRepository, ClassRepository classRepository) {
+        this.bookingRepository = bookingRepository;
+        this.classRepository = classRepository;
     }
     @Override
     public boolean bookClass(int userId, int scheduleId) {

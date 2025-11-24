@@ -2,14 +2,13 @@ package com.gym.service;
 
 import com.gym.domain.User;
 import com.gym.repository.UserRepository;
-import com.gym.repository.sqlite.SqliteUserRepository;
 
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private User currentUser = null;
 
-    public AuthServiceImpl() {
-        this.userRepository = new SqliteUserRepository();
+    public AuthServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
