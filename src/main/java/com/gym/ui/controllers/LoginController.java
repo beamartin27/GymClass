@@ -1,5 +1,10 @@
 package com.gym.ui.controllers;
 
+import com.gym.AppConfig;
+import com.gym.domain.User;
+import com.gym.service.AuthService;
+import com.gym.ui.utils.SceneManager;
+import com.gym.ui.utils.SessionManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -11,6 +16,8 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
 
+    private final AuthService authService = AppConfig.getAuthService();
+
     @FXML
     private void onLoginClicked() {
         String user = usernameField.getText();
@@ -21,6 +28,45 @@ public class LoginController {
             return;
         }
 
-        errorLabel.setText("Login clicked (backend wiring comes next)");
+        try {
+            User logged = authService.login(user, pass);   // puede devolver null
+
+            if (logged == null) {
+                errorLabel.setText("Invalid username or password");
+                return;
+            }
+
+            SessionManager.setCurrentUser(logged);
+
+            switch (logged.getRole()) {
+                case "ADMIN" -> SceneManager.switchTo(
+                        "/views/admin-dashboard.fxml",
+                        "Admin Dashboard"
+                );
+                case "INSTRUCTOR" -> SceneManager.switchTo(
+                        "/views/member-dashboard.fxml",   // luego haréis vista propia
+                        "Instructor Schedule"
+                );
+                case "MEMBER" -> SceneManager.switchTo(
+                        "/views/member-dashboard.fxml",
+                        "Member Dashboard"
+                );
+                default -> {
+                    errorLabel.setText("Unknown role: " + logged.getRole());
+                    SessionManager.clear();
+                }
+            }
+
+        } catch (Exception e) {
+            // por si AuthServiceImpl lanza alguna IllegalArgumentException
+            errorLabel.setText(e.getMessage());
+        }
+    }
+
+
+    @FXML
+    private void onRegisterClicked() {
+        // más adelante: abrir pantalla de registro si queréis
+        errorLabel.setText("Register not implemented yet");
     }
 }
